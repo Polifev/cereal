@@ -1,0 +1,16 @@
+= Cereal
+
+== Compiling
+
+First, you need to ensure that dependencies for https://ebitengine.org/[ebitengine] (our game engine) are installed.
+
+For example, developping on a debian machine:
+
+[src, bash]
+----
+sudo apt install libc6-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev libasound2-dev pkg-config
+----
+
+Then simply run the `go build` command.
+
+Voilà !
