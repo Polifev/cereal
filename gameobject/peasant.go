@@ -1,29 +1,39 @@
 package gameobject
 
+import "github.com/Polifev/cereal/math"
+
 type Peasant struct {
-	x float64
-	y float64
+	position    math.Vector
+	currentTask PeasantTask
 }
 
-func NewPeasant(x, y float64) *Peasant {
+func NewPeasant(position math.Vector) *Peasant {
 	return &Peasant{
-		x: x,
-		y: y,
+		position:    position,
+		currentTask: nil,
 	}
 }
 
-func (p *Peasant) X() float64 {
-	return p.x
-}
-
-func (p *Peasant) Y() float64 {
-	return p.y
-}
-
-func (p *Peasant) Position() (float64, float64) {
-	return p.x, p.y
+func (p *Peasant) Position() math.Vector {
+	return p.position
 }
 
 func (p *Peasant) Update() {
-	p.x += 1.0
+	if p.currentTask != nil {
+		p.currentTask.Update(p)
+
+		// TODO: pop instead
+		if p.currentTask.Done() {
+			p.currentTask = nil
+		}
+	}
+}
+
+func (p *Peasant) PushTask(task PeasantTask) {
+	// TODO: push to queue instead
+	p.currentTask = task
+}
+
+func (p *Peasant) Move(position math.Vector) {
+	p.position = position
 }
