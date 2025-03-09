@@ -15,7 +15,9 @@ import (
 type CerealGame struct {
 	navigation      nav.Navigation
 	peasantRenderer *render.PeasantRenderer
+	treeRenderer    *render.TreeRenderer
 	peasants        []*gameobject.Peasant
+	trees           []*gameobject.Tree
 }
 
 func newCerealGame() *CerealGame {
@@ -25,11 +27,23 @@ func newCerealGame() *CerealGame {
 		game.peasants = append(game.peasants, peasant)
 	}
 
+	for i := 0; i < 10; i++ {
+		tree := gameobject.NewTree(math.NewVectorFromInt(i*40, 500-i*40))
+		game.trees = append(game.trees, tree)
+	}
+	game.trees = append(game.trees, gameobject.NewTree(math.NewVectorFromInt(0, 0)))
+
 	peasantRenderer, err := render.NewPeasantRenderer()
 	if err != nil {
 		log.Fatal(err)
 	}
 	game.peasantRenderer = peasantRenderer
+
+	treeRenderer, err := render.NewTreeRenderer()
+	if err != nil {
+		log.Fatal(err)
+	}
+	game.treeRenderer = treeRenderer
 
 	// Define navigation engine (will later use A-Star or similar)
 	navigation := nav.Straight{}
@@ -59,6 +73,9 @@ func (g *CerealGame) Update() error {
 func (g *CerealGame) Draw(screen *ebiten.Image) {
 	for i := 0; i < len(g.peasants); i++ {
 		g.peasantRenderer.Draw(g.peasants[i], screen)
+	}
+	for i := 0; i < len(g.trees); i++ {
+		g.treeRenderer.Draw(g.trees[i], screen)
 	}
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Cereal Game (%f)", ebiten.ActualFPS()), 0, 0)
 }
