@@ -9,10 +9,14 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/vector"
+	"image/color"
 	"log"
 )
 
 type CerealGame struct {
+	hoveredPeasant *gameobject.Peasant
+
 	navigation      nav.Navigation
 	peasantRenderer *render.PeasantRenderer
 	treeRenderer    *render.TreeRenderer
@@ -53,13 +57,16 @@ func newCerealGame() *CerealGame {
 }
 
 func (g *CerealGame) Update() error {
+	mouseX, mouseY := ebiten.CursorPosition()
+	mousePos := math.NewVectorFromInt(mouseX, mouseY)
+
+	g.hover(mousePos)
+
 	// TODO: move this in an appropriate location
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
 		// TODO: compute real-world coordinate using camera
-		x, y := ebiten.CursorPosition()
-		target := math.NewVectorFromInt(x, y)
 		peasant := g.peasants[0]
-		path := g.navigation.Compute(peasant.Position(), target)
+		path := g.navigation.Compute(peasant.Position(), mousePos)
 		newTask := gameobject.NewMovementTask(path)
 		peasant.PushTask(&newTask)
 	}
@@ -70,8 +77,23 @@ func (g *CerealGame) Update() error {
 	return nil
 }
 
+func (g *CerealGame) hover(mousePos math.Vector) {
+	for _, peasant := range g.peasants {
+		if peasant.Contains(mousePos) {
+			g.hoveredPeasant = peasant
+			return
+		}
+	}
+	g.hoveredPeasant = nil
+}
+
 func (g *CerealGame) Draw(screen *ebiten.Image) {
 	for i := 0; i < len(g.peasants); i++ {
+		peasant := g.peasants[i]
+		pos := peasant.Position()
+		if g.hoveredPeasant == g.peasants[i] {
+			vector.DrawFilledCircle(screen, float32(pos.X()), float32(pos.Y()), 12, color.RGBA{255, 255, 255, 255}, false)
+		}
 		g.peasantRenderer.Draw(g.peasants[i], screen)
 	}
 	for i := 0; i < len(g.trees); i++ {

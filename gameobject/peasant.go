@@ -1,10 +1,24 @@
 package gameobject
 
-import "github.com/Polifev/cereal/math"
+import (
+	"github.com/Polifev/cereal/math"
+)
+
+const (
+	Height = 16
+	Width  = 16
+)
+
+var Dimensions = math.NewVectorFromInt(Width, Height)
 
 type Peasant struct {
 	position    math.Vector
 	currentTask PeasantTask
+}
+
+func (p *Peasant) Contains(point math.Vector) bool {
+	r := math.NewRectFromCenter(p.position, Dimensions)
+	return r.Contains(point)
 }
 
 func NewPeasant(position math.Vector) *Peasant {
